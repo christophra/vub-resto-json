@@ -10,6 +10,7 @@ import org.jsoup.select.Elements;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 
 public class Main {
@@ -81,6 +82,14 @@ public class Main {
      * @throws IOException
      */
     private static void writeToFile(String filename, String output) throws IOException {
+
+        File f = new File(filename);
+
+        if(!f.exists())
+        {
+            f.createNewFile();
+        }
+
         BufferedWriter out = new BufferedWriter(new FileWriter(filename));
         out.write(output);
         out.flush();
