@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Version: 1.0-SNAPSHOT
+Implementation-Tile: Resto Parser
+Main-Class: be.christophedetroyer.Main
+

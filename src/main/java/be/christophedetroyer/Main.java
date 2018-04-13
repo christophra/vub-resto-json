@@ -8,13 +8,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.File;
 import java.util.*;
 
 public class Main {
-    static String DUTCH_URL = "https://student.vub.be/resto";
+    static String DUTCH_URL = "https://student.vub.be/menu-vub-student-restaurant";
     static String ENGLISH_URL = "https://student.vub.be/en/food-and-drinks";
 
     private static final Map<String, String> COLORMAP;
@@ -48,30 +48,106 @@ public class Main {
         // The program expects on parameter, namely the directory where to write the files.
         final String outputpath = args[0];
 
+        //Document doc_nl = Jsoup.connect(DUTCH_URL).get();
+        File input = new File("example.html");
 
-        // Get the source for the dutch site, and extract etterbeek and jette.
+        /////////////////////
+        // Dutch Etterbeek //
+        /////////////////////
+
         Document doc_nl = Jsoup.connect(DUTCH_URL).get();
-        Document doc_en = Jsoup.connect(ENGLISH_URL).get();
-        Element etterbeekSection_nl = doc_nl.selectFirst("section:has(h2:contains(Menu Etterbeek)) + section");
-        Element etterbeekSection_en = doc_en.selectFirst("section:has(h2:contains(What\\\'s for lunch in Etterbeek)) + section");
-        Element jetteSection_nl = doc_nl.selectFirst("section:has(h2:contains(Menu Jette)) + section");
-        Element jetteSection_en = doc_en.selectFirst("section:has(h2:contains(What\\\'s for lunch in Jette)) + section");
 
-        List<JSONObject> etterbeek_nl = getJsonObjects(etterbeekSection_nl);
+        List<JSONObject> week = new ArrayList<JSONObject>(5);
+
+        Element etterbeek_nl_monday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section");
+        JSONObject etterbeek_nl_monday_json = parseDay(etterbeek_nl_monday);
+        week.add(etterbeek_nl_monday_json);
+
+        Element etterbeek_nl_tuesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section");
+        JSONObject etterbeek_nl_tuesday_json = parseDay(etterbeek_nl_tuesday);
+        week.add(etterbeek_nl_tuesday_json);
+
+        Element etterbeek_nl_wednesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section");
+        JSONObject etterbeek_nl_wednesday_json = parseDay(etterbeek_nl_wednesday);
+        week.add(etterbeek_nl_wednesday_json);
+
+        Element etterbeek_nl_thursday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section + section");
+        JSONObject etterbeek_nl_thursday_json = parseDay(etterbeek_nl_thursday);
+        week.add(etterbeek_nl_thursday_json);
+
+        Element etterbeek_nl_friday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section + section + section");
+        JSONObject etterbeek_nl_friday_json = parseDay(etterbeek_nl_friday);
+        week.add(etterbeek_nl_friday_json);
+
+        // Put them in their file.
         String etterbeekfilenl = String.format("%setterbeek.nl.json", outputpath);
-        writeToFile(etterbeekfilenl, new JSONArray(etterbeek_nl).toString());
+        writeToFile(etterbeekfilenl, new JSONArray(week).toString());
 
-        List<JSONObject> etterbeek_en = getJsonObjects(etterbeekSection_en);
-        String etterbeekfileen = String.format("%setterbeek.en.json", outputpath);
-        writeToFile(etterbeekfileen, new JSONArray(etterbeek_en).toString());
+        return;
 
-        List<JSONObject> jette_en = getJsonObjects(jetteSection_en);
-        String jettefileen = String.format("%sjette.en.json", outputpath);
-        writeToFile(jettefileen, new JSONArray(jette_en).toString());
+    }
 
-        List<JSONObject> jette_nl = getJsonObjects(jetteSection_nl);
-        String jettefilenl = String.format("%sjette.nl.json", outputpath);
-        writeToFile(jettefilenl, new JSONArray(jette_nl).toString());
+    //    <section class="pg-text rd-content js-extra ">
+    //        <div class="rd-container">
+    //            <div class="rd-content-holder js-extra-content">
+    //                <h4>Maandag</h4>
+    //                <p>02.04.2018: Paasmaandag gesloten</p>
+    //                <ul>
+    //                    <li>Soep:</li>
+    //                    <li>Menu 1:</li>
+    //                    <li>Menu 2:</li>
+    //                    <li>Vis:</li>
+    //                    <li>Veggie:</li>
+    //                    <li>Pasta bar:</li>
+    //                    <li>Wok:</li>
+    //                </ul>
+    //            </div>
+    //        </div>
+    //    </section>
+    public static JSONObject parseDay(Element section) {
+        JSONObject day_json = new JSONObject();
+
+        String date = section.selectFirst("div > div > p").text().trim().replace(":", "").toLowerCase();
+        String[] date_parts = date.split("\\.");
+
+        String day_int = date_parts[0].trim();
+        String month_int = date_parts[1].trim();
+        String year_int = date_parts[2].substring(0, 4); // In case there is an additional message after the date (see example).
+        String day_string = String.format("%s-%s-%s", day_int, month_int, year_int);
+
+        Elements foods = section.select("li");
+
+
+        List<JSONObject> dishes_json = new LinkedList<JSONObject>();
+        for (Element food : foods) {
+            String raw_text = food.text();
+            String[] tokens = raw_text.split(":");
+
+            String name = tokens[0];
+
+
+            // If the dish is empty, it's not there.
+            if (tokens.length > 1) {
+                String dish = formatDish(String.join(" ", Arrays.copyOfRange(tokens, 1, tokens.length)));
+                JSONObject dish_json = new JSONObject();
+                dish_json.put("name", name);
+                dish_json.put("dish", dish);
+                dish_json.put("color", "#FF00FF");
+
+                dishes_json.add(dish_json);
+            }
+        }
+        day_json.put("menus", dishes_json);
+        day_json.put("date", day_string);
+        return day_json;
+
+    }
+
+
+    public static String formatDish(String name) {
+        String lower = name.toLowerCase().trim();
+
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
     /**
@@ -85,8 +161,7 @@ public class Main {
 
         File f = new File(filename);
 
-        if(!f.exists())
-        {
+        if (!f.exists()) {
             f.createNewFile();
         }
 
@@ -95,60 +170,5 @@ public class Main {
         out.flush();
     }
 
-    /**
-     * Given the section, parses it into a list of json objects. Each representing a menu of the day.
-     *
-     * @param section
-     * @return A list of json objects representing a day of the week with its menu.
-     */
-    private static List<JSONObject> getJsonObjects(Element section) {
-        Element table = section.selectFirst("table");
-        Elements rows = table.select("tr:not(tr:has(th))").select("tr:has(td:matches(.+))");
-        Elements days = table.select("th:matches(.+)");
-        List<JSONObject> dayjson = new ArrayList<JSONObject>();
 
-
-        for (int i = 0; i < days.size(); i++) {
-            Element day = days.get(i);
-
-            JSONObject json = new JSONObject();
-
-            // Build the date String.
-            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-            String day_raw = day.text().trim();
-            String[] parts = day_raw.split("/");
-            String day_str = parts[0];
-            String mth_str = parts[1];
-            String yer_str = currentYear + "";
-            String output_str = String.format("%s-%s-%s", yer_str, mth_str, day_str);
-
-            json.put("date", output_str);
-
-            List<JSONObject> menus = new LinkedList<JSONObject>();
-
-            // Get the dishes from the rows.
-            for (int r = 0; r < rows.size(); r++) {
-                JSONObject menu = new JSONObject();
-
-                Element row = rows.get(r);
-                Elements datas = row.select("td:matches(.+)");
-
-                String dish = datas.get(0).text().trim();
-                String name = datas.get(i + 1).text().trim();
-                String color = COLORMAP.getOrDefault(dish.toLowerCase(), "#fdb85b");
-
-                menu.put("name", dish);
-                menu.put("dish", name);
-                menu.put("color", color);
-
-                menus.add(menu);
-
-            }
-
-            json.put("menus", menus);
-            dayjson.add(json);
-
-        }
-        return dayjson;
-    }
 }
