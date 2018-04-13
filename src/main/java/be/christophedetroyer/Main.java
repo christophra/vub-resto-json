@@ -15,7 +15,7 @@ import java.util.*;
 
 public class Main {
     static String DUTCH_URL = "https://student.vub.be/menu-vub-student-restaurant";
-    static String ENGLISH_URL = "https://student.vub.be/en/food-and-drinks";
+    static String ENGLISH_URL = "https://student.vub.be/en/menu-vub-student-restaurant";
 
     private static final Map<String, String> COLORMAP;
 
@@ -48,41 +48,131 @@ public class Main {
         // The program expects on parameter, namely the directory where to write the files.
         final String outputpath = args[0];
 
-        //Document doc_nl = Jsoup.connect(DUTCH_URL).get();
-        File input = new File("example.html");
-
         /////////////////////
         // Dutch Etterbeek //
         /////////////////////
 
         Document doc_nl = Jsoup.connect(DUTCH_URL).get();
 
-        List<JSONObject> week = new ArrayList<JSONObject>(5);
+        List<JSONObject> week_etterbeek_nl = new ArrayList<JSONObject>(5);
 
         Element etterbeek_nl_monday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section");
         JSONObject etterbeek_nl_monday_json = parseDay(etterbeek_nl_monday);
-        week.add(etterbeek_nl_monday_json);
+        week_etterbeek_nl.add(etterbeek_nl_monday_json);
 
         Element etterbeek_nl_tuesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section");
         JSONObject etterbeek_nl_tuesday_json = parseDay(etterbeek_nl_tuesday);
-        week.add(etterbeek_nl_tuesday_json);
+        week_etterbeek_nl.add(etterbeek_nl_tuesday_json);
 
         Element etterbeek_nl_wednesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section");
         JSONObject etterbeek_nl_wednesday_json = parseDay(etterbeek_nl_wednesday);
-        week.add(etterbeek_nl_wednesday_json);
+        week_etterbeek_nl.add(etterbeek_nl_wednesday_json);
 
         Element etterbeek_nl_thursday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section + section");
         JSONObject etterbeek_nl_thursday_json = parseDay(etterbeek_nl_thursday);
-        week.add(etterbeek_nl_thursday_json);
+        week_etterbeek_nl.add(etterbeek_nl_thursday_json);
 
         Element etterbeek_nl_friday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Etterbeek)) + section + section + section + section + section");
         JSONObject etterbeek_nl_friday_json = parseDay(etterbeek_nl_friday);
-        week.add(etterbeek_nl_friday_json);
+        week_etterbeek_nl.add(etterbeek_nl_friday_json);
 
         // Put them in their file.
         String etterbeekfilenl = String.format("%setterbeek.nl.json", outputpath);
-        writeToFile(etterbeekfilenl, new JSONArray(week).toString());
+        writeToFile(etterbeekfilenl, new JSONArray(week_etterbeek_nl).toString());
 
+        ////////////////////////
+        // English Etterbeek //
+        ///////////////////////
+
+        List<JSONObject> week_jette_nl = new ArrayList<JSONObject>(5);
+
+        Element jette_nl_monday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Jette)) + section");
+        JSONObject jette_nl_monday_json = parseDay(jette_nl_monday);
+        week_jette_nl.add(jette_nl_monday_json);
+
+        Element jette_nl_tuesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Jette)) + section + section");
+        JSONObject jette_nl_tuesday_json = parseDay(jette_nl_tuesday);
+        week_jette_nl.add(jette_nl_tuesday_json);
+
+        Element jette_nl_wednesday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Jette)) + section + section + section");
+        JSONObject jette_nl_wednesday_json = parseDay(jette_nl_wednesday);
+        week_jette_nl.add(jette_nl_wednesday_json);
+
+        Element jette_nl_thursday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Jette)) + section + section + section + section");
+        JSONObject jette_nl_thursday_json = parseDay(jette_nl_thursday);
+        week_jette_nl.add(jette_nl_thursday_json);
+
+        Element jette_nl_friday = doc_nl.selectFirst("section:has(h2:contains(Weekmenu Jette)) + section + section + section + section + section");
+        JSONObject jette_nl_friday_json = parseDay(jette_nl_friday);
+        week_jette_nl.add(jette_nl_friday_json);
+
+        // Put them in their file.
+        String jettefilenl = String.format("%sjette.nl.json", outputpath);
+        writeToFile(jettefilenl, new JSONArray(week_jette_nl).toString());
+
+
+        ///////////////////////
+        // Etterbeek English //
+        ///////////////////////
+
+        Document doc_en = Jsoup.connect(ENGLISH_URL).get();
+
+        List<JSONObject> week_etterbeek_en = new ArrayList<JSONObject>(5);
+
+        Element etterbeek_en_monday = doc_en.selectFirst("section:has(h2:contains(Week menu Etterbeek)) + section");
+        JSONObject etterbeek_en_monday_json = parseDay(etterbeek_en_monday);
+        week_etterbeek_en.add(etterbeek_en_monday_json);
+
+        Element etterbeek_en_tuesday = doc_en.selectFirst("section:has(h2:contains(Week Menu Etterbeek)) + section + section");
+        JSONObject etterbeek_en_tuesday_json = parseDay(etterbeek_en_tuesday);
+        week_etterbeek_en.add(etterbeek_en_tuesday_json);
+
+        Element etterbeek_en_wednesday = doc_en.selectFirst("section:has(h2:contains(Week Menu Etterbeek)) + section + section + section");
+        JSONObject etterbeek_en_wednesday_json = parseDay(etterbeek_en_wednesday);
+        week_etterbeek_en.add(etterbeek_en_wednesday_json);
+
+        Element etterbeek_en_thursday = doc_en.selectFirst("section:has(h2:contains(Week Menu Etterbeek)) + section + section + section + section");
+        JSONObject etterbeek_en_thursday_json = parseDay(etterbeek_en_thursday);
+        week_etterbeek_en.add(etterbeek_en_thursday_json);
+
+        Element etterbeek_en_friday = doc_en.selectFirst("section:has(h2:contains(Week Menu Etterbeek)) + section + section + section + section + section");
+        JSONObject etterbeek_en_friday_json = parseDay(etterbeek_en_friday);
+        week_etterbeek_en.add(etterbeek_en_friday_json);
+
+        // Put them in their file.
+        String etterbeekfileen = String.format("%setterbeek.en.json", outputpath);
+        writeToFile(etterbeekfileen, new JSONArray(week_etterbeek_en).toString());
+
+
+        //////////////////////////
+        // Etterbeek Nederlands //
+        //////////////////////////
+
+        List<JSONObject> week_jette_en = new ArrayList<JSONObject>(5);
+
+        Element jette_en_monday = doc_en.selectFirst("section:has(h2:contains(Week menu Jette)) + section");
+        JSONObject jette_en_monday_json = parseDay(jette_en_monday);
+        week_jette_en.add(jette_en_monday_json);
+
+        Element jette_en_tuesday = doc_en.selectFirst("section:has(h2:contains(Week Menu Jette)) + section + section");
+        JSONObject jette_en_tuesday_json = parseDay(jette_en_tuesday);
+        week_jette_en.add(jette_en_tuesday_json);
+
+        Element jette_en_wednesday = doc_en.selectFirst("section:has(h2:contains(Week Menu Jette)) + section + section + section");
+        JSONObject jette_en_wednesday_json = parseDay(jette_en_wednesday);
+        week_jette_en.add(jette_en_wednesday_json);
+
+        Element jette_en_thursday = doc_en.selectFirst("section:has(h2:contains(Week Menu Jette)) + section + section + section + section");
+        JSONObject jette_en_thursday_json = parseDay(jette_en_thursday);
+        week_jette_en.add(jette_en_thursday_json);
+
+        Element jette_en_friday = doc_en.selectFirst("section:has(h2:contains(Week Menu Jette)) + section + section + section + section + section");
+        JSONObject jette_en_friday_json = parseDay(jette_en_friday);
+        week_jette_en.add(jette_en_friday_json);
+
+        // Put them in their file.
+        String jettefileen = String.format("%sjette.en.json", outputpath);
+        writeToFile(jettefileen, new JSONArray(week_jette_en).toString());
         return;
 
     }
@@ -132,7 +222,7 @@ public class Main {
                 JSONObject dish_json = new JSONObject();
                 dish_json.put("name", name);
                 dish_json.put("dish", dish);
-                dish_json.put("color", "#FF00FF");
+                dish_json.put("color", COLORMAP.getOrDefault(name.toLowerCase(), "#fdb85b"));
 
                 dishes_json.add(dish_json);
             }
